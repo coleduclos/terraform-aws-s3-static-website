@@ -1,3 +1,8 @@
+provider "aws" {
+    alias  = "us-east-1"
+    region = "us-east-1"
+}
+
 data "aws_route53_zone" "selected" {
     name         = "${var.public_hosted_zone_name}."
     private_zone = false
@@ -114,9 +119,14 @@ resource "aws_cloudfront_distribution" "website_root_distribution" {
 }
 
 # https://github.com/terraform-aws-modules/terraform-aws-acm
+# CloudFront supports US East (N. Virginia) Region only.
 module "acm" {
     source  = "terraform-aws-modules/acm/aws"
     version = "~> 4.0"
+
+    providers = {
+        aws = aws.us-east-1
+    }
 
     domain_name  = var.public_hosted_zone_name
     zone_id      = data.aws_route53_zone.selected.zone_id

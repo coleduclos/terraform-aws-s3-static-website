@@ -1,7 +1,3 @@
-variable "certificate_arn" {
-    type = string
-}
-
 variable "error_document_key" {
     type = string
     default = "error.html"

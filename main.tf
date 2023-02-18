@@ -1,3 +1,8 @@
+data "aws_route53_zone" "selected" {
+    name         = "${var.public_hosted_zone_name}."
+    private_zone = false
+}
+
 resource "aws_s3_bucket" "website_bucket" {
     bucket = "${var.public_hosted_zone_name}"
     tags = var.tags
@@ -105,6 +110,23 @@ resource "aws_cloudfront_distribution" "website_root_distribution" {
         ssl_support_method  = "sni-only"
         minimum_protocol_version = "TLSv1.2_2021"
     }
+    tags = var.tags
+}
+
+# https://github.com/terraform-aws-modules/terraform-aws-acm
+module "acm" {
+    source  = "terraform-aws-modules/acm/aws"
+    version = "~> 4.0"
+
+    domain_name  = var.public_hosted_zone_name
+    zone_id      = data.aws_route53_zone.selected.zone_id
+
+    subject_alternative_names = [
+        "www.${var.public_hosted_zone_name}",
+    ]
+
+    wait_for_validation = true
+
     tags = var.tags
 }
 

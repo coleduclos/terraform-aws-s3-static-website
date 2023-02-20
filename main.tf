@@ -8,6 +8,10 @@ data "aws_route53_zone" "selected" {
     private_zone = false
 }
 
+# resource "aws_route53_zone" "primary" {
+#   name = var.public_hosted_zone_name
+# }
+
 resource "aws_s3_bucket" "website_bucket" {
     bucket = "${var.public_hosted_zone_name}"
     tags = var.tags
@@ -138,5 +142,29 @@ module "acm" {
     wait_for_validation = true
 
     tags = var.tags
+}
+
+resource "aws_route53_record" "root_domain" {
+    zone_id = data.aws_route53_zone.selected.zone_id
+    name = var.public_hosted_zone_name
+    type = "A"
+
+    alias {
+        name = aws_cloudfront_distribution.website_root_distribution.domain_name
+        zone_id = aws_cloudfront_distribution.website_root_distribution.hosted_zone_id
+        evaluate_target_health = false
+    }
+}
+
+resource "aws_route53_record" "root_domain" {
+    zone_id = data.aws_route53_zone.selected.zone_id
+    name = "www.${var.public_hosted_zone_name}"
+    type = "A"
+
+    alias {
+        name = aws_cloudfront_distribution.website_root_distribution.domain_name
+        zone_id = aws_cloudfront_distribution.website_root_distribution.hosted_zone_id
+        evaluate_target_health = false
+    }
 }
 

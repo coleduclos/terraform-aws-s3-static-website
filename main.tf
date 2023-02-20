@@ -156,7 +156,7 @@ resource "aws_route53_record" "root_domain" {
     }
 }
 
-resource "aws_route53_record" "root_domain" {
+resource "aws_route53_record" "www_root_domain" {
     zone_id = data.aws_route53_zone.selected.zone_id
     name = "www.${var.public_hosted_zone_name}"
     type = "A"
